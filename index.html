@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CBR+PNK Clock Monitor</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="masthead" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">RPG Clock uplink</p>
+          <h1 id="page-title">Loading</h1>
+        </div>
+        <div class="status-panel" aria-live="polite">
+          <span class="status-light" id="status-light"></span>
+          <span id="status-text">Offline</span>
+        </div>
+      </section>
+
+      <section class="readout" aria-live="polite">
+        <div class="game-banner">
+          <div>
+            <p class="eyebrow">Current job</p>
+            <h2 id="game-title">Loading</h2>
+          </div>
+          <p id="game-tagline">Auto-connecting to the live RPGClock2 uplink.</p>
+        </div>
+
+        <div id="clock-groups" class="clock-groups">
+          <div class="empty-state">
+            <span class="empty-code">00:00</span>
+            <p>No clock telemetry received.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
