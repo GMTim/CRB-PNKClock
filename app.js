@@ -2,11 +2,15 @@ import { RPGClockReadClient } from "./js/rpgclock2client/index.js";
 
 const BASE_URL = "https://rpgclockapi2.bunchofbull.net";
 const GAME_ID = "639B1E2A-A56F-40D2-AF9D-EB5FAC7A0F1F";
+const GLITCH_MIN_DELAY = 4500;
+const GLITCH_MAX_DELAY = 12000;
+const GLITCH_DURATION = 650;
 
 const state = {
   client: null,
   eventSource: null,
-  activeGame: null
+  activeGame: null,
+  glitchTimeout: null
 };
 
 const els = {
@@ -19,6 +23,7 @@ const els = {
 };
 
 connectToGame();
+scheduleTitleGlitch();
 
 function createClient() {
   state.client = new RPGClockReadClient({
@@ -70,7 +75,7 @@ function parsePayload(data) {
 
 function renderGame(game) {
   const title = game.title || "Untitled run";
-  els.pageTitle.textContent = title;
+  setPageTitle(title);
   els.gameTitle.textContent = title;
   els.gameTagline.textContent = game.tagline || "Incoming clock telemetry locked.";
   els.clockGroups.replaceChildren(
@@ -98,7 +103,6 @@ function createGroupElement(group) {
 function createClockElement(clock) {
   const filledSegments = clampNumber(clock.filledSegments, 0, clock.totalSegments);
   const totalSegments = Math.max(1, Number(clock.totalSegments) || 1);
-  const ratio = filledSegments / totalSegments;
   const color = normalizeColor(clock.color);
   const isBlackClock = isBlackColor(color);
 
@@ -108,7 +112,6 @@ function createClockElement(clock) {
     article.classList.add("clock-card--black");
   }
   article.style.setProperty("--clock-color", isBlackClock ? "#f2f8ff" : color);
-  article.style.setProperty("--clock-ratio", ratio.toFixed(3));
 
   const header = document.createElement("div");
   header.className = "clock-card__header";
@@ -152,6 +155,27 @@ function setStatus(kind, label) {
   els.statusText.textContent = label;
 }
 
+function setPageTitle(title) {
+  els.pageTitle.textContent = title;
+  els.pageTitle.dataset.text = title;
+}
+
+function scheduleTitleGlitch() {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    return;
+  }
+
+  const delay = randomInt(GLITCH_MIN_DELAY, GLITCH_MAX_DELAY);
+  state.glitchTimeout = window.setTimeout(() => {
+    els.pageTitle.classList.add("is-glitching");
+
+    window.setTimeout(() => {
+      els.pageTitle.classList.remove("is-glitching");
+      scheduleTitleGlitch();
+    }, GLITCH_DURATION);
+  }, delay);
+}
+
 function closeFeed() {
   if (state.eventSource) {
     state.eventSource.close();
@@ -175,4 +199,8 @@ function normalizeColor(value) {
 function isBlackColor(value) {
   const color = String(value).trim().toLowerCase();
   return color === "black" || color === "#000" || color === "#000000" || color === "rgb(0, 0, 0)" || color === "rgb(0,0,0)";
+}
+
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }

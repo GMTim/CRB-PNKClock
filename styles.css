@@ -91,6 +91,7 @@ p {
 }
 
 h1 {
+  position: relative;
   max-width: min(72vw, 980px);
   margin-bottom: 0;
   overflow: hidden;
@@ -102,6 +103,43 @@ h1 {
   text-shadow:
     0 0 12px rgba(0, 246, 255, 0.58),
     5px 5px 0 rgba(255, 43, 214, 0.45);
+}
+
+.glitch-title::before,
+.glitch-title::after {
+  position: absolute;
+  inset: 0;
+  display: none;
+  overflow: hidden;
+  content: attr(data-text);
+  pointer-events: none;
+}
+
+.glitch-title::before {
+  color: var(--cyan);
+  text-shadow: -3px 0 0 rgba(0, 246, 255, 0.72);
+}
+
+.glitch-title::after {
+  color: var(--pink);
+  text-shadow: 3px 0 0 rgba(255, 43, 214, 0.72);
+}
+
+.glitch-title.is-glitching {
+  animation: titleSignalRoll 650ms steps(1, end);
+}
+
+.glitch-title.is-glitching::before,
+.glitch-title.is-glitching::after {
+  display: block;
+}
+
+.glitch-title.is-glitching::before {
+  animation: titleGlitchCyan 650ms steps(1, end);
+}
+
+.glitch-title.is-glitching::after {
+  animation: titleGlitchPink 650ms steps(1, end);
 }
 
 .status-panel {
@@ -235,14 +273,11 @@ button:disabled {
 
 .clock-card {
   --clock-color: var(--cyan);
-  --clock-ratio: 0;
   position: relative;
   min-height: 190px;
   padding: 16px;
   overflow: hidden;
-  background:
-    linear-gradient(90deg, color-mix(in srgb, var(--clock-color), transparent 92%) calc(var(--clock-ratio) * 100%), transparent 0),
-    var(--panel-hard);
+  background: var(--panel-hard);
   border: 1px solid color-mix(in srgb, var(--clock-color), transparent 42%);
   box-shadow:
     inset 0 0 32px color-mix(in srgb, var(--clock-color), transparent 88%),
@@ -261,7 +296,6 @@ button:disabled {
 .clock-card--black {
   --clock-color: #f2f8ff;
   background:
-    linear-gradient(90deg, rgba(242, 248, 255, 0.11) calc(var(--clock-ratio) * 100%), transparent 0),
     linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(42, 54, 68, 0.28)),
     var(--panel-hard);
   border-color: rgba(242, 248, 255, 0.44);
@@ -389,6 +423,112 @@ button:disabled {
 
   50% {
     filter: brightness(1.24);
+  }
+}
+
+@keyframes titleSignalRoll {
+  0%,
+  100% {
+    filter: none;
+    transform: translateY(0);
+  }
+
+  12% {
+    filter: brightness(1.45) contrast(1.35);
+    transform: translateY(-1px) skewX(-2deg);
+  }
+
+  18% {
+    transform: translateY(2px) skewX(3deg);
+  }
+
+  31% {
+    filter: hue-rotate(12deg) contrast(1.7);
+    transform: translateY(-3px);
+  }
+
+  48% {
+    filter: brightness(1.2);
+    transform: translateY(1px) skewX(-1deg);
+  }
+
+  61% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes titleGlitchCyan {
+  0%,
+  100% {
+    clip-path: inset(0 0 100% 0);
+    transform: translate(0, 0);
+  }
+
+  10% {
+    clip-path: inset(0 0 72% 0);
+    transform: translate(-8px, -2px);
+  }
+
+  22% {
+    clip-path: inset(42% 0 38% 0);
+    transform: translate(12px, 3px);
+  }
+
+  37% {
+    clip-path: inset(64% 0 12% 0);
+    transform: translate(-6px, -5px);
+  }
+
+  52% {
+    clip-path: inset(18% 0 58% 0);
+    transform: translate(9px, 2px);
+  }
+
+  70% {
+    clip-path: inset(78% 0 0 0);
+    transform: translate(-10px, 4px);
+  }
+}
+
+@keyframes titleGlitchPink {
+  0%,
+  100% {
+    clip-path: inset(100% 0 0 0);
+    transform: translate(0, 0);
+  }
+
+  13% {
+    clip-path: inset(70% 0 8% 0);
+    transform: translate(10px, 4px);
+  }
+
+  26% {
+    clip-path: inset(12% 0 64% 0);
+    transform: translate(-12px, -3px);
+  }
+
+  44% {
+    clip-path: inset(48% 0 34% 0);
+    transform: translate(7px, 5px);
+  }
+
+  58% {
+    clip-path: inset(4% 0 78% 0);
+    transform: translate(-9px, -2px);
+  }
+
+  73% {
+    clip-path: inset(82% 0 6% 0);
+    transform: translate(11px, 3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .segment.is-active,
+  .glitch-title.is-glitching,
+  .glitch-title.is-glitching::before,
+  .glitch-title.is-glitching::after {
+    animation: none;
   }
 }
 
