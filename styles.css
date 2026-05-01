@@ -70,6 +70,47 @@ body.is-loading::after {
   animation: bootSweep 2.6s ease-in-out infinite;
 }
 
+body.is-booting-out::after {
+  opacity: 1;
+  animation: bootFlash 720ms cubic-bezier(0.7, 0, 0.18, 1) both;
+}
+
+body.is-booting-in .game-banner {
+  animation: liveReveal 640ms ease-out both;
+}
+
+body.is-booting-in .clock-group {
+  animation: liveReveal 760ms ease-out both;
+}
+
+body.is-booting-in .clock-group:nth-child(2) {
+  animation-delay: 90ms;
+}
+
+body.is-booting-in .clock-group:nth-child(3) {
+  animation-delay: 180ms;
+}
+
+body.is-booting-in .clock-group:nth-child(n + 4) {
+  animation-delay: 240ms;
+}
+
+body.is-booting-in .clock-card {
+  animation: cardBootIn 760ms ease-out both;
+}
+
+body.is-booting-in .clock-card:nth-child(2) {
+  animation-delay: 70ms;
+}
+
+body.is-booting-in .clock-card:nth-child(3) {
+  animation-delay: 140ms;
+}
+
+body.is-booting-in .clock-card:nth-child(n + 4) {
+  animation-delay: 210ms;
+}
+
 button,
 input,
 select {
@@ -453,6 +494,28 @@ button:disabled {
     inset 0 0 120px rgba(255, 43, 214, 0.06);
 }
 
+.uplink-loader.is-exiting {
+  animation: loaderExit 720ms cubic-bezier(0.7, 0, 0.18, 1) both;
+}
+
+.uplink-loader.is-exiting .loader-core {
+  animation: coreExit 720ms cubic-bezier(0.7, 0, 0.18, 1) both;
+}
+
+.uplink-loader.is-exiting .loader-copy {
+  animation: copyExit 420ms ease-in both;
+}
+
+.uplink-loader.is-exiting .loader-ring--outer,
+.uplink-loader.is-exiting .loader-ring--middle,
+.uplink-loader.is-exiting .loader-ring--inner {
+  animation-duration: 360ms;
+}
+
+.uplink-loader.is-exiting .loader-sweep {
+  animation: sweepTurn 320ms linear infinite;
+}
+
 .uplink-loader::before,
 .uplink-loader::after {
   position: absolute;
@@ -619,6 +682,110 @@ button:disabled {
 
   50% {
     transform: translateX(36%);
+  }
+}
+
+@keyframes bootFlash {
+  0% {
+    opacity: 1;
+    transform: translateX(-18%) scaleX(1);
+    filter: brightness(1);
+  }
+
+  46% {
+    opacity: 1;
+    transform: translateX(0) scaleX(1.16);
+    filter: brightness(1.8);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(18%) scaleX(1.45);
+    filter: brightness(1);
+  }
+}
+
+@keyframes loaderExit {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: brightness(1);
+  }
+
+  44% {
+    opacity: 1;
+    transform: translateY(-4px) scale(1.015);
+    filter: brightness(1.55) contrast(1.18);
+    border-color: rgba(199, 255, 61, 0.62);
+    box-shadow:
+      inset 0 0 90px rgba(0, 246, 255, 0.18),
+      inset 0 0 150px rgba(255, 43, 214, 0.12),
+      0 0 42px rgba(199, 255, 61, 0.18);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+    filter: brightness(0.72) blur(6px);
+  }
+}
+
+@keyframes coreExit {
+  0% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+
+  58% {
+    transform: scale(0.84) rotate(18deg);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(0.42) rotate(38deg);
+    opacity: 0;
+  }
+}
+
+@keyframes copyExit {
+  to {
+    opacity: 0;
+    transform: translateX(22px);
+    filter: blur(3px);
+  }
+}
+
+@keyframes liveReveal {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+    filter: brightness(1.45) blur(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: brightness(1) blur(0);
+  }
+}
+
+@keyframes cardBootIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.985);
+    filter: brightness(1.55) blur(5px);
+  }
+
+  55% {
+    opacity: 1;
+    transform: translateY(-3px) scale(1.006);
+    filter: brightness(1.2) blur(0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: brightness(1) blur(0);
   }
 }
 
@@ -821,6 +988,13 @@ button:disabled {
   .segment.is-active,
   .status-light[data-status="scanning"],
   body.is-loading::after,
+  body.is-booting-out::after,
+  body.is-booting-in .game-banner,
+  body.is-booting-in .clock-group,
+  body.is-booting-in .clock-card,
+  .uplink-loader.is-exiting,
+  .uplink-loader.is-exiting .loader-core,
+  .uplink-loader.is-exiting .loader-copy,
   .uplink-loader::before,
   .uplink-loader::after,
   .loader-ring--outer,

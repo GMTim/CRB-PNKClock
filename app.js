@@ -5,11 +5,19 @@ const GAME_ID = "639B1E2A-A56F-40D2-AF9D-EB5FAC7A0F1F";
 const GLITCH_MIN_DELAY = 4500;
 const GLITCH_MAX_DELAY = 12000;
 const GLITCH_DURATION = 650;
+const MIN_BOOT_DURATION = 3600;
+const BOOT_EXIT_DURATION = 720;
+const BOOT_REVEAL_DURATION = 900;
 
 const state = {
   client: null,
   eventSource: null,
   activeGame: null,
+  pendingGame: null,
+  bootStartedAt: 0,
+  bootFinishTimeout: null,
+  bootExitTimeout: null,
+  bootRevealTimeout: null,
   glitchTimeout: null
 };
 
@@ -37,6 +45,15 @@ function connectToGame() {
   closeFeed();
   const client = state.client || createClient();
 
+  window.clearTimeout(state.bootFinishTimeout);
+  window.clearTimeout(state.bootExitTimeout);
+  window.clearTimeout(state.bootRevealTimeout);
+  state.bootFinishTimeout = null;
+  state.bootExitTimeout = null;
+  state.bootRevealTimeout = null;
+  state.pendingGame = null;
+  state.bootStartedAt = performance.now();
+  document.body.classList.remove("is-booting-out", "is-booting-in");
   document.body.classList.add("is-loading");
   setStatus("scanning", "Opening feed");
   const eventSource = client.subscribeToGameEvents(GAME_ID, {
@@ -64,10 +81,61 @@ function handleClockEvent(event) {
     return;
   }
 
-  state.activeGame = game;
-  document.body.classList.remove("is-loading");
-  renderGame(game);
-  setStatus("live", "Live feed");
+  if (state.activeGame && !document.body.classList.contains("is-loading")) {
+    state.activeGame = game;
+    renderGame(game);
+    setStatus("live", "Live feed");
+    return;
+  }
+
+  queueBootComplete(game);
+}
+
+function queueBootComplete(game) {
+  state.pendingGame = game;
+  const elapsed = performance.now() - state.bootStartedAt;
+  const remainingBootTime = Math.max(0, MIN_BOOT_DURATION - elapsed);
+
+  if (state.bootFinishTimeout || state.bootExitTimeout) {
+    return;
+  }
+
+  setStatus("scanning", "Clock lock");
+  state.bootFinishTimeout = window.setTimeout(() => {
+    state.bootFinishTimeout = null;
+    finishBootTransition();
+  }, remainingBootTime);
+}
+
+function finishBootTransition() {
+  const loader = els.clockGroups.querySelector(".uplink-loader");
+  const game = state.pendingGame;
+
+  if (!game) {
+    return;
+  }
+
+  setStatus("scanning", "Link established");
+  document.body.classList.add("is-booting-out");
+
+  if (loader) {
+    loader.classList.add("is-exiting");
+  }
+
+  state.bootExitTimeout = window.setTimeout(() => {
+    state.bootExitTimeout = null;
+    state.activeGame = state.pendingGame;
+    state.pendingGame = null;
+    document.body.classList.remove("is-loading", "is-booting-out");
+    renderGame(state.activeGame);
+    document.body.classList.add("is-booting-in");
+    setStatus("live", "Live feed");
+
+    state.bootRevealTimeout = window.setTimeout(() => {
+      state.bootRevealTimeout = null;
+      document.body.classList.remove("is-booting-in");
+    }, getMotionDuration(BOOT_REVEAL_DURATION));
+  }, getMotionDuration(BOOT_EXIT_DURATION));
 }
 
 function parsePayload(data) {
@@ -166,7 +234,7 @@ function setPageTitle(title) {
 }
 
 function scheduleTitleGlitch() {
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  if (prefersReducedMotion()) {
     return;
   }
 
@@ -179,6 +247,14 @@ function scheduleTitleGlitch() {
       scheduleTitleGlitch();
     }, GLITCH_DURATION);
   }, delay);
+}
+
+function getMotionDuration(duration) {
+  return prefersReducedMotion() ? 0 : duration;
+}
+
+function prefersReducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
 function closeFeed() {
