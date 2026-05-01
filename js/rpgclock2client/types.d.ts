@@ -14,6 +14,11 @@ export interface SubscribeOptions {
   onMessage?: (event: MessageEvent) => void;
   onError?: (event: Event) => void;
   eventSourceOptions?: EventSourceInit;
+  signal?: AbortSignal;
+  connectionTimeoutMs?: number;
+  reconnectDelayMs?: number;
+  maxReconnectDelayMs?: number;
+  keepAliveTimeoutMs?: number;
 }
 
 export interface HealthResponse {
