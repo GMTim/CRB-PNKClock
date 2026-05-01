@@ -6,7 +6,7 @@
     <title>CBR+PNK Clock Monitor</title>
     <link rel="stylesheet" href="./styles.css">
   </head>
-  <body>
+  <body class="is-loading">
     <main class="shell">
       <section class="masthead" aria-labelledby="page-title">
         <div>
@@ -29,9 +29,22 @@
         </div>
 
         <div id="clock-groups" class="clock-groups">
-          <div class="empty-state">
-            <span class="empty-code">00:00</span>
-            <p>No clock telemetry received.</p>
+          <div class="uplink-loader" role="status" aria-live="polite">
+            <div class="loader-core" aria-hidden="true">
+              <span class="loader-ring loader-ring--outer"></span>
+              <span class="loader-ring loader-ring--middle"></span>
+              <span class="loader-ring loader-ring--inner"></span>
+              <span class="loader-sweep"></span>
+              <span class="loader-node loader-node--one"></span>
+              <span class="loader-node loader-node--two"></span>
+              <span class="loader-node loader-node--three"></span>
+              <span class="loader-readout">00:00</span>
+            </div>
+            <div class="loader-copy">
+              <p class="eyebrow">Signal handshake</p>
+              <p class="loader-title">Spinning up the clock feed</p>
+              <p class="loader-subtitle">Routing through the live RPGClock2 uplink.</p>
+            </div>
           </div>
         </div>
       </section>

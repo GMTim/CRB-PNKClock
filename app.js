@@ -37,10 +37,14 @@ function connectToGame() {
   closeFeed();
   const client = state.client || createClient();
 
+  document.body.classList.add("is-loading");
   setStatus("scanning", "Opening feed");
   const eventSource = client.subscribeToGameEvents(GAME_ID, {
     onMessage: handleClockEvent,
-    onError: () => setStatus("error", "Feed interrupted"),
+    onError: () => {
+      document.body.classList.toggle("is-loading", !state.activeGame);
+      setStatus("error", "Feed interrupted");
+    },
     eventHandlers: {
       game: handleClockEvent,
       clocks: handleClockEvent,
@@ -48,7 +52,7 @@ function connectToGame() {
     }
   });
 
-  eventSource.onopen = () => setStatus("live", "Live feed");
+  eventSource.onopen = () => setStatus("scanning", "Syncing clocks");
   state.eventSource = eventSource;
 }
 
@@ -61,6 +65,7 @@ function handleClockEvent(event) {
   }
 
   state.activeGame = game;
+  document.body.classList.remove("is-loading");
   renderGame(game);
   setStatus("live", "Live feed");
 }
